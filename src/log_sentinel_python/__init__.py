@@ -1,1 +1,0 @@
-"""log-sentinel-python package."""
