@@ -1,5 +1,4 @@
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -69,14 +68,3 @@ def print_summary(events: list[dict[str, Any]]) -> None:
     print("Log levels:")
     for level, count in sorted(level_counts(events).items()):
         print(f"  {level:>8}: {count}")
-
-
-def main() -> None:
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/sample_logs_100.jsonl")
-    logger.info("Parser service starting with input file: %s", path)
-    print_summary(read_logs(path))
-    logger.info("Parser service completed successfully")
-
-
-if __name__ == "__main__":
-    main()
