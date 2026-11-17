@@ -6,6 +6,10 @@
 
 # Python
 __pycache__/
+*$py.class
+*.egg-info/
+.eggs/
+build/
 
 # IDE
 .idea/
