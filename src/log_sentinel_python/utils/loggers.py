@@ -1,11 +1,8 @@
-"""Logging configuration used across the service."""
-
 import logging
 import sys
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Return a consistently configured DEBUG-level logger."""
     logger = logging.getLogger(name)
 
     if not logger.handlers:

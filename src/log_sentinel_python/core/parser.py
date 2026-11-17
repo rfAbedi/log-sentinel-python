@@ -68,11 +68,10 @@ def print_summary(events: list[dict[str, Any]]) -> None:
     print(f"Valid log lines: {len(events)}")
     print("Log levels:")
     for level, count in sorted(level_counts(events).items()):
-        print(f"  {level}: {count}")
+        print(f"  {level:>8}: {count}")
 
 
 def main() -> None:
-    """Run the parser against a JSONL file supplied on the command line."""
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/sample_logs_100.jsonl")
     logger.info("Parser service starting with input file: %s", path)
     print_summary(read_logs(path))
