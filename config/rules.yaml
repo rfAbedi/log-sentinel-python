@@ -1,0 +1,15 @@
+rules:
+  - name: critical_level
+    field: level
+    operator: equals
+    value: CRITICAL
+
+  - name: high_latency
+    field: latency_ms
+    operator: greater_than
+    value: 3000
+
+  - name: auth_failure
+    field: status_code
+    operator: equals
+    value: 401
