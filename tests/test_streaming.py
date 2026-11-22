@@ -2,7 +2,7 @@ import json
 import psycopg2
 import pytest
 
-from log_sentinel_python.core import producer
+from log_sentinel_python.ingester import producer
 from log_sentinel_python.evaluator.streaming import build_spark_session, run_streaming
 
 

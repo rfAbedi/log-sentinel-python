@@ -1,4 +1,4 @@
-from log_sentinel_python.core.parser import parse_log_line, read_logs
+from log_sentinel_python.ingester.parser import parse_log_line, read_logs
 
 
 def test_parse_log_line_returns_valid_json_object() -> None:
