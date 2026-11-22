@@ -8,24 +8,24 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      
+
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      
+
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
-      
+
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      
+
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
 
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-      
+
     healthcheck:
       test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "kafka:29092", "--list"]
       interval: 10s
@@ -39,7 +39,7 @@ services:
         condition: service_healthy
     command: >
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists
-      --topic log-events --partitions 1 --replication-factor 1
+      --topic ${KAFKA_TOPIC} --partitions 1 --replication-factor 1
 
   postgres:
     image: postgres:17-alpine
@@ -47,9 +47,9 @@ services:
       - "5432:5432"
 
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-log_sentinel}
-      POSTGRES_USER: ${POSTGRES_USER:-log_sentinel}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-log_sentinel}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -59,6 +59,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
+  spark-master:
+    image: apache/spark:4.3.0
+    hostname: spark-master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      SPARK_MODE: master
+      SPARK_MASTER_PORT: 7077
+      SPARK_MASTER_WEBUI_PORT: 8080
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+
+  spark-worker:
+    image: apache/spark:4.3.0
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
 
 volumes:
   postgres-data:
