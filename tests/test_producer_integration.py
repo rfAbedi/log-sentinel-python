@@ -1,11 +1,18 @@
+import json
+
 import pytest
 from kafka import KafkaConsumer
+from kafka.serializer import Deserializer
 
-from log_sentinel_python.consumer import JsonDeserializer
 from log_sentinel_python.core import producer
 
 
 pytestmark = pytest.mark.integration
+
+
+class JsonDeserializer(Deserializer):
+    def deserialize(self, topic, headers, data):
+        return json.loads(data.decode("utf-8"))
 
 
 def make_event(service: str, level: str = "INFO", latency_ms: int = 42) -> dict:
