@@ -3,19 +3,20 @@ import time
 from pathlib import Path
 from typing import Any
 
+import argparse
+
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
-from log_sentinel_python.evaluator.repository import _persist_alerts_batch
 from log_sentinel_python.evaluator.rules import EVENT_SCHEMA, build_alerts_dataframe, load_rules
 from log_sentinel_python.utils.loggers import get_logger
 
 
 logger = get_logger(__name__)
 
-DEFAULT_KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC", "log-events")
-DEFAULT_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-DEFAULT_RULES_PATH = Path("config/rules.yaml")
+DEFAULT_KAFKA_TOPIC = None
+DEFAULT_BOOTSTRAP_SERVERS = None
+DEFAULT_RULES_PATH = None
 
 
 def build_spark_session(master: str = "local[*]") -> SparkSession:
@@ -29,11 +30,17 @@ def build_spark_session(master: str = "local[*]") -> SparkSession:
 
 
 def run_streaming(
-    bootstrap_servers: str = DEFAULT_BOOTSTRAP_SERVERS,
-    topic: str = DEFAULT_KAFKA_TOPIC,
-    rules_path: Path = DEFAULT_RULES_PATH,
+    bootstrap_servers: str | None = DEFAULT_BOOTSTRAP_SERVERS,
+    topic: str | None = DEFAULT_KAFKA_TOPIC,
+    rules_path: Path | None = DEFAULT_RULES_PATH,
     duration_seconds: int = 30,
 ) -> None:
+    if bootstrap_servers is None:
+        bootstrap_servers = os.environ["KAFKA_BOOTSTRAP_SERVERS"]
+    if topic is None:
+        topic = os.environ["KAFKA_TOPIC"]
+    if rules_path is None:
+        rules_path = Path(os.environ["RULES_PATH"])
     logger.info("Starting streaming: bootstrap=%s topic=%s rules=%s", bootstrap_servers, topic, rules_path)
     rules = load_rules(rules_path)
     spark = build_spark_session()
@@ -58,6 +65,8 @@ def run_streaming(
         alerts_df = build_alerts_dataframe(parsed, rules)
 
         logger.info("Starting streaming query")
+        from log_sentinel_python.evaluator.repository import _persist_alerts_batch
+
         query = (
             alerts_df.writeStream.foreachBatch(_persist_alerts_batch)
             .outputMode("append")
@@ -70,3 +79,23 @@ def run_streaming(
         logger.info("Streaming query stopped")
     finally:
         spark.stop()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Log Sentinel Spark streaming job")
+    parser.add_argument("--bootstrap-servers", default=None)
+    parser.add_argument("--topic", default=None)
+    parser.add_argument("--rules-path", type=Path, default=None)
+    parser.add_argument("--stream-seconds", type=int, default=30)
+    args = parser.parse_args()
+
+    run_streaming(
+        bootstrap_servers=args.bootstrap_servers,
+        topic=args.topic,
+        rules_path=args.rules_path,
+        duration_seconds=args.stream_seconds,
+    )
+
+
+if __name__ == "__main__":
+    main()

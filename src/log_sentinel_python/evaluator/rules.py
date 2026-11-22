@@ -11,7 +11,6 @@ from log_sentinel_python.utils.loggers import get_logger
 
 logger = get_logger(__name__)
 
-DEFAULT_RULES_PATH = Path("config/rules.yaml")
 
 EVENT_SCHEMA = StructType(
     [
@@ -27,7 +26,7 @@ EVENT_SCHEMA = StructType(
 )
 
 
-def load_rules(path: Path = DEFAULT_RULES_PATH) -> list[dict[str, Any]]:
+def load_rules(path: Path) -> list[dict[str, Any]]:
     logger.info("Loading rules from %s", path)
     with path.open(encoding="utf-8") as rules_file:
         loaded = yaml.safe_load(rules_file)

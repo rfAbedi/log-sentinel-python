@@ -13,11 +13,11 @@ def _pg_connection() -> Any:
     import psycopg2
 
     return psycopg2.connect(
-        host=os.environ.get("POSTGRES_HOST", "localhost"),
-        port=os.environ.get("POSTGRES_PORT", "5432"),
-        dbname=os.environ.get("POSTGRES_DB", "log_sentinel"),
-        user=os.environ.get("POSTGRES_USER", "log_sentinel"),
-        password=os.environ.get("POSTGRES_PASSWORD", "log_sentinel"),
+        host=os.environ["POSTGRES_HOST"],
+        port=os.environ["POSTGRES_PORT"],
+        dbname=os.environ["POSTGRES_DB"],
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
     )
 
 
