@@ -4,7 +4,7 @@ import pytest
 from kafka import KafkaConsumer
 from kafka.serializer import Deserializer
 
-from log_sentinel_python.core import producer
+from log_sentinel_python.ingester import producer
 
 
 pytestmark = pytest.mark.integration
