@@ -13,7 +13,6 @@ logger = get_logger(__name__)
 
 TOPIC = os.environ.get("KAFKA_TOPIC", "log-events")
 DEFAULT_BOOTSTRAP_SERVERS = "localhost:9092"
-DEFAULT_INPUT_PATH = Path("data/sample_logs_100.jsonl")
 PUBLISH_INTERVAL_SECONDS = float(os.environ.get("KAFKA_PRODUCE_INTERVAL", "1"))
 
 
