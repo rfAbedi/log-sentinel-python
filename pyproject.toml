@@ -15,7 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "testcontainers>=4.0"]
-spark = ["pyspark>=3.5"]
+spark = ["pyspark>=4.3.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
