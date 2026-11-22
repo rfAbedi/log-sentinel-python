@@ -7,13 +7,21 @@ name = "log-sentinel-python"
 version = "0.1.0"
 description = "A small log-streaming practice project"
 requires-python = ">=3.11"
-dependencies = ["PyYAML>=6.0"]
+dependencies = [
+    "PyYAML>=6.0",
+    "kafka-python>=3.0",
+    "psycopg2-binary>=2.9",
+]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "testcontainers>=4.0"]
+spark = ["pyspark>=3.5"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: marks tests that require Docker (Kafka and PostgreSQL containers)",
+]
